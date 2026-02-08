@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SAXUL GIRLS | PRIVATE STREAM</title>
+    <style>
+        :root { --neon: #00ff41; --pink: #ff0055; --bg: #050505; }
+        body { background: var(--bg); color: var(--neon); font-family: 'Courier New', monospace; margin: 0; display: flex; height: 100vh; }
+
+        /* Sidebar */
+        .sidebar { width: 300px; border-right: 2px solid var(--neon); background: #0a0a0a; display: flex; flex-direction: column; padding: 20px; }
+        h1 { font-size: 20px; color: var(--pink); text-align: center; border-bottom: 2px solid var(--pink); padding-bottom: 10px; }
+        .list { flex: 1; overflow-y: auto; margin-top: 20px; }
+        
+        .vid-btn { width: 100%; background: transparent; border: 1px solid var(--neon); color: var(--neon); padding: 12px; margin-bottom: 10px; cursor: pointer; text-align: left; transition: 0.3s; }
+        .vid-btn:hover { background: var(--neon); color: #000; box-shadow: 0 0 10px var(--neon); }
+        .active { border-left: 6px solid var(--pink); background: rgba(255, 0, 85, 0.1); }
+
+        /* Main Area */
+        .main { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
+        video { width: 100%; max-width: 800px; border: 2px solid var(--pink); box-shadow: 0 0 20px rgba(255,0,85,0.4); border-radius: 8px; display: none; }
+        .desc { margin-top: 20px; text-align: center; }
+        .desc h2 { color: var(--pink); }
+    </style>
+</head>
+<body>
+
+<div class="sidebar">
+    <h1>SAXUL GIRLS</h1>
+    <div class="list" id="btnList"></div>
+</div>
+
+<div class="main">
+    <div id="msg">[ SELECT DATA LINK ]</div>
+    <video id="vPlayer" controls></video>
+    <div class="desc" id="vInfo" style="display:none;">
+        <h2 id="vTitle"></h2>
+        <p id="vCap" style="color: #ccc;"></p>
+    </div>
+</div>
+
+<script>
+    function loadContent() {
+        const container = document.getElementById('btnList');
+        const db = JSON.parse(localStorage.getItem('saxul_cloud_db')) || [];
+        
+        container.innerHTML = db.map((v, i) => `
+            <button class="vid-btn" onclick="play('${v.url}', '${v.title}', '${v.caption}', this)">
+                > LINK_${i+1}: ${v.title}
+            </button>
+        `).join('');
+    }
+
+    function play(url, title, cap, btn) {
+        document.getElementById('msg').style.display = 'none';
+        document.getElementById('vInfo').style.display = 'block';
+        const player = document.getElementById('vPlayer');
+        player.style.display = 'block';
+        player.src = url;
+        player.play();
+
+        document.getElementById('vTitle').innerText = title;
+        document.getElementById('vCap').innerText = cap;
+
+        document.querySelectorAll('.vid-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+    }
+
+    window.onload = loadContent;
+</script>
+
+</body>
+</html>

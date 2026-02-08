@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SAXUL | STORAGE UPLOAD</title>
+    <style>
+        body { background: #000; color: #00ff41; font-family: 'Courier New', monospace; padding: 20px; display: flex; justify-content: center; }
+        .admin-card { width: 100%; max-width: 400px; background: #111; border: 2px solid #ff0055; padding: 25px; box-shadow: 0 0 20px #ff0055; border-radius: 10px; }
+        h2 { color: #ff0055; text-align: center; text-transform: uppercase; letter-spacing: 2px; }
+        input, textarea { width: 100%; margin: 10px 0; padding: 12px; background: #000; border: 1px solid #00ff41; color: #00ff41; box-sizing: border-box; border-radius: 5px; }
+        input[type="file"] { border: 1px dashed #ff0055; cursor: pointer; }
+        button { width: 100%; padding: 15px; background: #ff0055; color: white; border: none; cursor: pointer; font-weight: bold; margin-top: 10px; text-transform: uppercase; transition: 0.3s; }
+        button:hover { background: #00ff41; color: #000; }
+        .log { margin-top: 15px; font-size: 12px; color: #555; text-align: center; }
+    </style>
+</head>
+<body>
+
+<div class="admin-card">
+    <h2>Root Storage Access</h2>
+    
+    <input type="text" id="v_title" placeholder="Video Title (বাটনের নাম)">
+    
+    <label style="font-size: 12px; color: #ff0055;">Select Video from Phone:</label>
+    <input type="file" id="v_file" accept="video/*">
+    
+    <textarea id="v_cap" rows="3" placeholder="Enter Description / Caption..."></textarea>
+    
+    <button onclick="uploadToSystem()">Push to User Page</button>
+    
+    <div class="log" id="log">Checking system status...</div>
+    <button onclick="localStorage.clear(); location.reload();" style="background:#222; font-size:10px; margin-top:30px; border: 1px solid #444;">Wipe All Data</button>
+</div>
+
+<script>
+    function uploadToSystem() {
+        const title = document.getElementById('v_title').value;
+        const fileInput = document.getElementById('v_file');
+        const caption = document.getElementById('v_cap').value;
+
+        if(!title || !fileInput.files[0]) {
+            alert("দয়া করে নাম এবং ভিডিও ফাইল সিলেক্ট করুন!");
+            return;
+        }
+
+        const file = fileInput.files[0];
+        
+        // ফাইলটি বড় হলে FileReader দিয়ে base64 এ কনভার্ট করা (LocalStorage এর জন্য)
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const videoData = e.target.result; // এটিই ভিডিওর ডাটা
+
+            let db = JSON.parse(localStorage.getItem('saxul_cloud_db')) || [];
+            db.push({ 
+                title: title, 
+                url: videoData, 
+                caption: caption,
+                type: 'local' // চিহ্নিত করার জন্য যে এটি ফাইল থেকে নেওয়া
+            });
+
+            try {
+                localStorage.setItem('saxul_cloud_db', JSON.stringify(db));
+                alert("সাফল্যের সাথে আপলোড হয়েছে!");
+                location.reload();
+            } catch (error) {
+                alert("ফাইলটি অনেক বড়! দয়া করে ছোট ভিডিও দিন অথবা লিঙ্ক ব্যবহার করুন।");
+            }
+        };
+        reader.readAsDataURL(file);
+    }
+
+    const db = JSON.parse(localStorage.getItem('saxul_cloud_db')) || [];
+    document.getElementById('log').innerText = "Status: " + db.length + " links active.";
+</script>
+
+</body>
+</html>
